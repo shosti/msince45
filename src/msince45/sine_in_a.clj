@@ -1,3 +1,10 @@
+;; # Sine in A
+;; ### Emanuel Evans
+;;
+;; Sine in A is a stochastic piece exploring consonance and
+;; dissonance.  It is loosely inspired by various techniques of
+;; Stockhausen, as well as
+
 (ns msince45.sine-in-a
   (:use [overtone.live]))
 
@@ -22,7 +29,7 @@
 
 (def harmonic-series-ratios
   "The numbers 1 through 12 (multiplied by the fundamental to obtain
-the first 12 harmonics)."
+  the first 12 harmonics)."
   (map inc (range number-of-partials)))
 
 (def fundamental-frequencies
@@ -32,17 +39,21 @@ the first 12 harmonics)."
 
 (def fundamental-volumes
   "The fundamental volume sequence that partials are multiplied by in
-their most consonant state: `[1, 0.5, 0.25 ...]`"
+  their most consonant state: `[1, 0.5, 0.25 ...]`"
   (take number-of-partials (iterate #(/ % 2) 1.0)))
 
 ;; ## Sine generators
 
 (defcgen sine-event
+  "A composite generator that plays 12 sine waves at volumes given by
+  the `volumes` vector, given a fundamental and a list of partial ratios
+  (technically the actual fundamental will be the first partial
+  multiplied by the fundamental)."
   [fundamental
    {:doc "The fundamental frequency for the sine composite."}
    partials
    {:doc "A vector of 12 numbers that comprise the ratios for the partials.
-For harmonics, these numbers will be whole numbers."}
+          For harmonics, these numbers will be whole numbers."}
    volumes
    {:doc "A vector of the volumes for the respective partials."}]
   (:ar
@@ -52,6 +63,7 @@ For harmonics, these numbers will be whole numbers."}
                  volumes frequencies)))))
 
 (defcgen sine-group
+  "A group of 12 sine events, with given fundamentals, partials, and volumes."
   [fundamentals
    {:doc "The fundamentals for the group."}
    duration
@@ -59,7 +71,8 @@ For harmonics, these numbers will be whole numbers."}
    partials-list
    {:doc "A vector of 12 vectors, each with 12 partial frequencies."}
    volumes-list
-   {:doc "A vector of 12 vectors, each with 12 respective volumes for the partials."}]
+   {:doc "A vector of 12 vectors, each with 12 respective
+          volumes for the partials."}]
   (:ar
    (let [env (env-gen (sine duration) :action FREE)
          events (map #(sine-event %1 %2 %3)
@@ -68,6 +81,8 @@ For harmonics, these numbers will be whole numbers."}
         (apply + events)))))
 
 (defn sine-group-synth
+  "Returns a synthesizer for a sine group with given parameters,
+  played at the given balance."
   [{:keys [fundamentals
            duration
            partials-list
@@ -82,29 +97,35 @@ For harmonics, these numbers will be whole numbers."}
                              duration
                              partials-list
                              volumes-list)))))
+
 ;; ## Deterministic functions
 
+;; $$ f(t) = \\sin(\\frac{t}{60} + \\pi) $$
 (defn time-func
-  "The basic function of time upon which the piece is based: a sine
-wave offset by π and normalized so that with π time events per second
-a full cycle will take 2 minutes."
+  "The basic function of time upon
+which the piece is based: a sine wave offset by π and normalized so
+that with π time events per second a full cycle will take 2
+minutes. "
   [t]
   (Math/sin (+ Math/PI (/ t 60.0))))
 
+;; $$ |f(t)| $$
 (defn overall-volume
   "The overall volume as a function of time.  Rises as the piece
-  enters maximally consonant and dissonant zones."
+  enters maximally consonant and dissonant zones.  "
   [t]
   (* volume-max
      (Math/abs (time-func t))))
 
+;; $$ \\frac{-f(t) + 1}{4} $$
 (defn frequency-variance
-  "The frequency variance as a function of time.  As the piece
+  " The frequency variance as a function of time.  As the piece
   approaches consonance, the frequencies will approach the harmonic
-  series. Bounded by 0 and 0.5."
+  series. Bounded by 0 and 0.5. "
   [t]
   (/ (+ (- (time-func t)) 1) 4))
 
+;; $$ \\frac{-f(t) + 1}{2} $$
 (defn volume-variance
   "The partial volume variance as a function of time.  As the piece
   approaches consonance, the partial volumes will approach the
@@ -112,6 +133,7 @@ a full cycle will take 2 minutes."
   [t]
   (/ (+ (- (time-func t)) 1) 2))
 
+;; $$ \\frac{-f(t) + 1}{4} $$
 (defn balance-variance
   "The balance variance as a function of time.  As the piece
   approaches consonance, the balance approaches the center.
