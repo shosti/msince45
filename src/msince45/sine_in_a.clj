@@ -100,7 +100,7 @@
 
 ;; ## Deterministic functions
 
-;; $$ f(t) = \\sin(\\frac{t}{60} + \\pi) $$
+;; $$ f(t) = \sin(\frac{t}{60} + \pi) $$
 (defn time-func
   "The basic function of time upon
 which the piece is based: a sine wave offset by π and normalized so
@@ -117,15 +117,15 @@ minutes. "
   (* volume-max
      (Math/abs (time-func t))))
 
-;; $$ \\frac{-f(t) + 1}{4} $$
+;; $$ \frac{-f(t) + 1}{4} $$
 (defn frequency-variance
-  " The frequency variance as a function of time.  As the piece
+  "The frequency variance as a function of time.  As the piece
   approaches consonance, the frequencies will approach the harmonic
   series. Bounded by 0 and 0.5. "
   [t]
   (/ (+ (- (time-func t)) 1) 4))
 
-;; $$ \\frac{-f(t) + 1}{2} $$
+;; $$ \frac{-f(t) + 1}{2} $$
 (defn volume-variance
   "The partial volume variance as a function of time.  As the piece
   approaches consonance, the partial volumes will approach the
@@ -133,7 +133,7 @@ minutes. "
   [t]
   (/ (+ (- (time-func t)) 1) 2))
 
-;; $$ \\frac{-f(t) + 1}{4} $$
+;; $$ \frac{-f(t) + 1}{4} $$
 (defn balance-variance
   "The balance variance as a function of time.  As the piece
   approaches consonance, the balance approaches the center.

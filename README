@@ -1,13 +1,6 @@
-# msince45
+To play the piece, run the following in the terminal:
 
-FIXME: write description
+cd path/to/msince45
+sh play
 
-## Usage
-
-FIXME: write
-
-## License
-
-Copyright (C) 2012 FIXME
-
-Distributed under the Eclipse Public License, the same as Clojure.
+SuperCollider must be installed
