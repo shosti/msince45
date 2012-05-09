@@ -210,23 +210,3 @@ minutes. "
   []
   (intern *ns* 'sine-metronome (metronome (* Math/PI 60)))
   (play-sine-group (sine-metronome)))
-
-
-;;(sine-in-a)
-;;(stop)
-
-;; ## Demo
-
-(defn consonant-chord []
-  (let [fundamentals (map #(* 55.0 %) harmonic-series-ratios)
-        volumes-list (take 12 (cycle [fundamental-volumes]))
-        partials-list (take 12 (cycle [harmonic-series-ratios]))]
-    ((sine-group-synth {:fundamentals fundamentals
-                        :duration 5.0
-                        :partials-list partials-list
-                        :volumes-list volumes-list
-                        :balance 0.5
-                        :overall-volume 0.1}))))
-
-;;(consonant-chord)
-;;(stop)
