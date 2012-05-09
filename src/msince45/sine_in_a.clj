@@ -159,8 +159,8 @@ a full cycle will take 2 minutes."
 ;; ## Running the piece
 
 (def sine-metronome
-  "A metronome with π beats per second."
-  (metronome (* Math/PI 60)))
+  "A metronome with π beats per second.  Will be set once the runner starts."
+  nil)
 
 (defn play-sine-group
   "Plays the current sine group (with characteristics determined as a
@@ -186,10 +186,12 @@ a full cycle will take 2 minutes."
 
 (defn sine-in-a
   []
+  (intern *ns* 'sine-metronome (metronome (* Math/PI 60)))
   (play-sine-group (sine-metronome)))
 
 
 ;;(sine-in-a)
+;;(stop)
 
 ;; ## Demo
 
