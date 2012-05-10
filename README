@@ -1,6 +1,8 @@
 To play the piece, run the following in the terminal:
 
-cd path/to/msince45
+cd path/to/msince45 (replace with correct path)
+lein jar
 sh play
 
-SuperCollider must be installed
+SuperCollider (http://supercollider.sourceforge.net/) and Leiningen
+(https://github.com/technomancy/leiningen) must be installed.
