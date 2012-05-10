@@ -1,8 +1,8 @@
 ;; # Sine in A
 ;; ### Emanuel Evans
 ;;
-;; Sine in A is a stochastic piece exploring consonance and
-;; dissonance.  It is loosely inspired by various techniques of
+;; Sine in A is an aleatoric electronic piece exploring harmonicity and
+;; inharmonicity.  It is loosely inspired by various techniques of
 ;; Stockhausen, as well as
 
 (ns msince45.sine-in-a
@@ -25,7 +25,7 @@
 
 (def volume-max
   "A maximum overall volume to prevent clipping."
-  0.3)
+  0.1)
 
 (def harmonic-series-ratios
   "The numbers 1 through 12 (multiplied by the fundamental to obtain
@@ -88,10 +88,10 @@
            partials-list
            volumes-list
            balance
-           overall-volume]}]
+           group-volume]}]
   (synth []
          (out 0
-              (* overall-volume
+              (* group-volume
                  [balance (- 1 balance)]
                  (sine-group fundamentals
                              duration
@@ -110,19 +110,19 @@ minutes. "
   (/ (+ (Math/sin (- (/ t 60) (/ Math/PI 2))) 1) 2))
 
 ;; $$ f(t) $$
-(defn overall-volume
+(defn group-volume-variance
   "The overall volume as a function of time.  Rises as the piece
   enters maximally consonant and dissonant zones.  "
   [t]
-  (* volume-max (time-func t)))
+  (- 1 (time-func t)))
 
-;; $$ \frac{1 - f(t)}{2}
+;; $$ \frac{1 - f(t)}{2} $$
 (defn frequency-variance
   "The frequency variance as a function of time.  As the piece
   approaches consonance, the frequencies will approach the harmonic
   series. Bounded by 0 and 0.25. "
   [t]
-  (/ (- 1 (time-func t)) 2))
+  (/ (- 1 (time-func t)) 4))
 
 ;; $$ 1-f(t) $$
 (defn volume-variance
@@ -131,6 +131,10 @@ minutes. "
   fundamental volumes. Bounded by 0 and 1."
   [t]
   (- 1 (time-func t)))
+
+(defn overall-volume
+  [t]
+  (+ 0.5 (/ (time-func t) 2)))
 
 ;; $$ \frac{-f(t)}{2} $$
 (defn balance-variance
@@ -170,6 +174,12 @@ minutes. "
   [t]
   (map #(stochastic-volume % t) harmonic-series-ratios))
 
+(defn stochastic-group-volume
+  [t]
+  (let [variance (group-volume-variance t)
+        offset (ranged-rand 0 variance)]
+    (* volume-max (overall-volume t) (- 1 offset))))
+
 (defn stochastic-balance
   "The balance based on variance.  Between 0 and 1."
   [t]
@@ -193,14 +203,14 @@ minutes. "
         volumes-list   (for [_ (range number-of-partials)]
                        (stochastic-volumes t))
         balance        (stochastic-balance t)
-        overall-volume (overall-volume t)
+        group-volume   (stochastic-group-volume t)
         player         (sine-group-synth
                         {:fundamentals fundamental-frequencies
                          :duration group-duration
                          :partials-list partials-list
                          :volumes-list volumes-list
                          :balance balance
-                         :overall-volume overall-volume})]
+                         :group-volume group-volume})]
     (at (sine-metronome t)
       (player))
     (apply-at (sine-metronome next-t) #'play-sine-group [next-t])))
@@ -209,7 +219,11 @@ minutes. "
   []
   (intern *ns* 'sine-metronome (metronome (* Math/PI 60)))
   (play-sine-group (sine-metronome)))
-;;(recording-start "~/Desktop/sine_in_a.wav")
-;;(sine-in-a)
-;;(recording-stop)
-;;(stop)
+
+(defn record-sine-in-a
+  [fname duration]
+  (recording-start fname)
+  (sine-in-a)
+  (Thread/sleep duration)
+  (recording-stop)
+  (stop))
