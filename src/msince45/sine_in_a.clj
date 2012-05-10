@@ -25,7 +25,7 @@
 
 (def volume-max
   "A maximum overall volume to prevent clipping."
-  0.1)
+  0.3)
 
 (def harmonic-series-ratios
   "The numbers 1 through 12 (multiplied by the fundamental to obtain
@@ -100,46 +100,45 @@
 
 ;; ## Deterministic functions
 
-;; $$ f(t) = \sin(\frac{t}{60} + \pi) $$
+;; $$ f(t) = \frac{\sin(\frac{t}{60} - \frac{\pi}{2}) + 1}{2} $$
 (defn time-func
   "The basic function of time upon
 which the piece is based: a sine wave offset by π and normalized so
 that with π time events per second a full cycle will take 2
 minutes. "
   [t]
-  (Math/sin (+ Math/PI (/ t 60.0))))
+  (/ (+ (Math/sin (- (/ t 60) (/ Math/PI 2))) 1) 2))
 
-;; $$ |f(t)| $$
+;; $$ f(t) $$
 (defn overall-volume
   "The overall volume as a function of time.  Rises as the piece
   enters maximally consonant and dissonant zones.  "
   [t]
-  (* volume-max
-     (Math/abs (time-func t))))
+  (* volume-max (time-func t)))
 
-;; $$ \frac{-f(t) + 1}{4} $$
+;; $$ \frac{1 - f(t)}{2}
 (defn frequency-variance
   "The frequency variance as a function of time.  As the piece
   approaches consonance, the frequencies will approach the harmonic
-  series. Bounded by 0 and 0.5. "
+  series. Bounded by 0 and 0.25. "
   [t]
-  (/ (+ (- (time-func t)) 1) 4))
+  (/ (- 1 (time-func t)) 2))
 
-;; $$ \frac{-f(t) + 1}{2} $$
+;; $$ 1-f(t) $$
 (defn volume-variance
   "The partial volume variance as a function of time.  As the piece
   approaches consonance, the partial volumes will approach the
   fundamental volumes. Bounded by 0 and 1."
   [t]
-  (/ (+ (- (time-func t)) 1) 2))
+  (- 1 (time-func t)))
 
-;; $$ \frac{-f(t) + 1}{4} $$
+;; $$ \frac{-f(t)}{2} $$
 (defn balance-variance
   "The balance variance as a function of time.  As the piece
   approaches consonance, the balance approaches the center.
   Equivalent to the frequency variance."
   [t]
-  (frequency-variance t))
+  (/ (- 1 (time-func t)) 2))
 
 ;; ## Stochastic functions
 
@@ -210,3 +209,7 @@ minutes. "
   []
   (intern *ns* 'sine-metronome (metronome (* Math/PI 60)))
   (play-sine-group (sine-metronome)))
+;;(recording-start "~/Desktop/sine_in_a.wav")
+;;(sine-in-a)
+;;(recording-stop)
+;;(stop)
