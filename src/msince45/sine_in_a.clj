@@ -18,7 +18,8 @@
 ;; levels).
 
 (ns msince45.sine-in-a
-  (:use [overtone.live]))
+  (:use [overtone.live])
+  (:gen-class))
 
 ;; ## Basic constants
 
