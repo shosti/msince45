@@ -1,3 +1,0 @@
-#!/bin/sh
-
-java -cp ./target/msince45-1.0.0.jar:lib/* clojure.main -e "(use 'msince45.sine-in-a) (in-ns 'msince45.sine-in-a) (sine-in-a)" -r
