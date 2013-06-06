@@ -11,3 +11,6 @@
 /src/msince45/bells.clj
 /docs/Sine in A.key
 /docs/Compositional process.docx
+/target
+/.lein-repl-history
+/.lein-env
